@@ -83,7 +83,7 @@ getRMetaDataFrame <- function(tableId) {
 # Parameter tableId: Number SB-table
 
 getDFValuesAndLabels <- function(mDF) {
-    varNms <- mDF[[2]][[1]]  ; varLbls <- mDF[[2]][[1]] ; varNmb <- length(varNms) ;
+    varNms <- mDF[[2]][[1]]  ; varLbls <- mDF[[2]][[2]] ; varNmb <- length(varNms) ;
     valAndLbl <- list()
     for (i in 1:varNmb) {
         xdfi <- data.frame(mDF[[2]][3][[1]][i],  mDF[[2]][4][[1]][i],0)
@@ -100,7 +100,7 @@ getDFValuesAndLabels <- function(mDF) {
 
 getValuesAndLabels <- function(tableId) {
     mDF <- fromJSON(getMetaData(tableId))
-    varNms <- mDF[[2]][[1]]  ; varLbls <- mDF[[2]][[1]] ; varNmb <- length(varNms) ;
+    varNms <- mDF[[2]][[1]]  ; varLbls <- mDF[[2]][[2]] ; varNmb <- length(varNms) ;
     valAndLbl <- list()
     for (i in 1:varNmb) {
         xdfi <- data.frame(mDF[[2]][3][[1]][i],  mDF[[2]][4][[1]][i],0)
