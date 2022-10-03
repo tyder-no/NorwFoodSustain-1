@@ -276,4 +276,235 @@ getQueryData0 <- function() {
 }
 
 
+##########################################################
+####### Trying Sweden, jordbruksverket       #############
+##########################################################
 
+
+
+
+
+
+#https://statistik.sjv.se/PXWeb/api/v1/sv/Jordbruksverkets statistikdatabas/Skordar/JO0601J01.px
+
+
+j06010URL <- 'https://statistik.sjv.se/PXWeb/api/v1/sv/Jordbruksverkets%20statistikdatabas/Skordar/JO0601J01.px'
+
+
+# Whole table
+j06010Q0 <-
+'{
+  "query": [
+    {
+      "code": "Variabel",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "0",
+          "2"
+        ]
+      }
+    },
+    {
+      "code": "Tabelluppgift",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "0"
+        ]
+      }
+    }
+  ],
+  "response": {
+    "format": "json-stat"
+  }
+}'
+
+j06010Q1 <-
+'{
+  "query": [
+    {
+      "code": "Län",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "000"
+        ]
+      }
+    },
+    {
+      "code": "Variabel",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "2",
+          "3"
+        ]
+      }
+    },
+    {
+      "code": "Tabelluppgift",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "0"
+        ]
+      }
+    }
+  ],
+  "response": {
+    "format": "json-stat"
+  }
+}'
+
+
+j06010Q2 <-
+'{
+  "query": [
+    {
+      "code": "Län",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "26"
+        ]
+      }
+    },
+    {
+      "code": "Variabel",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "0"
+        ]
+      }
+    },
+    {
+      "code": "Tabelluppgift",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "0"
+        ]
+      }
+    },
+    {
+      "code": "År",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "54",
+          "55"
+        ]
+      }
+    }
+  ],
+  "response": {
+    "format": "json-stat"
+  }
+}'
+
+skURL <- 'https://skogsstatistik.slu.se:443/api/v1/en/OffStat/ProduktivSkogsmark/Tillvaxt/PS_Tillvaxt_tab.px'
+
+skQ1 <-
+'{
+  "query": [
+    {
+      "code": "Län",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "000"
+        ]
+      }
+    },
+    {
+      "code": "Tabellinnehåll",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "0"
+        ]
+      }
+    },
+ {
+      "code": "År",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "54",
+          "55"
+        ]
+      }
+  ],
+  "response": {
+    "format": "json-stat"
+  }
+}'
+
+getRawJSONDataURL <- function(qURL=skURL,qData=skQ1) {
+# POST query request
+
+   d.tmp <- POST(qURL, body = qData, encode = "json", verbose())
+# Returns contents of d.tmp as JSON-formatted text 
+   content(d.tmp, "text")
+}
+
+
+getRawPxDataURL <- function(qURL=skURL,qData=skQ1) {
+# POST query request
+   d.tmp <- POST(qURL, body = qData, encode = "raw", verbose())
+# Returns contents of d.tmp as JSON-formatted text 
+   content(d.tmp, "text")
+}
+
+
+
+
+getJSONDataURL <- function(qURL=skURL,qData=skQ1,naming="id") {
+# Fetches the content processed by fromJSONstat
+   sbtable <- fromJSONstat(getRawJSONDataURL(qURL=qURL,qData=qData),naming=naming)
+   # dataset is used from sbtable and returned
+   ds1 <- sbtable[[1]] ;  ds2 <- sbtable ; 
+   list(ds1=ds1,ds2=ds2) 
+  
+}
+
+
+#getJSONDataURL()
+#getJSONDataURL(qURL=j0601URL,qData=j06010Q1)
+
+
+getRawJSONDataSw <- function(tableId='JO0601J01',queryData=j0601query0) {
+# POST query request
+  urlSwJo <- 'https://statistik.sjv.se/PXWeb/api/v1/sv/Jordbruksverkets statistikdatabas/Skordar/'
+   d.tmp <- POST(paste(urlSwJo,tableId,'.px',sep=""), body = qData, encode = "json", verbose())
+# Returns contents of d.tmp as JSON-formatted text 
+   content(d.tmp, "text")
+}
+
+
+# getJSONData - Fetches SB-data by POST-request. Returns a data table for further processing
+# Parameters 
+#  tableId: Number  SB-table
+#  queryData: JSON-formatted query 
+#  naming: Two relevant values: id - coding and variable names, label - the label-texts
+#
+
+getJSONDataSw <- function(tableId,queryData,naming="id") {
+# Fetches the content processed by fromJSONstat
+   sbtable <- fromJSONstat(getRawJSONData(tableId,queryData),naming=naming)
+# Only dataset is used from sbtable and returned
+    ds1 <- sbtable[[1]] ;
+    list(ds1=ds1,ds2=sbtable)
+}
+
+fetchSJV06010 <- function() {
+    jDfL <- getJSONDataURL(qURL=j0601URL,qData=j06010Q0) ;
+    jDf <- jDfL$ds1
+    names(jDf) <- c('Region','Crop','Variable','ValueType','Year','Value') # Fix varnames
+    jDf$Year <- as.numeric(jDf$Year) + 1965 ;  # Comprehensible time  line
+    saveRDS(jDf,file=paste0('Rd_data/','sjv06010','.Rds'))
+                                        #jDf <- readRDS(file=paste0('Rd_data/','sjv06010','.Rds'))
+    jDfL$ds2
+}

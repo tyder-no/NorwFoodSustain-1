@@ -68,3 +68,4 @@ adaptFoodCompTable <- function(tblNm='FCT_2021_0') {
 # saveRDS(fct_refs,paste0('./Rd_data/','FCT_2021','_reflist','.Rds'))
 
 
+# sjv06010Df <- readRDS(file=paste0('Rd_data/','sjv06010','.Rds'))

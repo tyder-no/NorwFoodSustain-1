@@ -24,7 +24,13 @@ source("ssb-json-functions.R")
 #   curl -X GET "https://nvebiapi.nve.no/api/Magasinstatistikk/HentOffentligData" -H "accept: application/json" > nvefylling.json
 #   curl -X GET "https://nvebiapi.nve.no/api/Magasinstatistikk/HentOffentligDataSisteUke" -H "accept: application/json" > nvefylling_21-52.json
 #
-#
+#                                        #
+# 8,16,17,18,21,22,24,25,27,28,29,30,31,32,33,34,35,36,37,38,42,43,44,45,46,48,51,52,53,54,62,63,64,66,67,69,71,72,73,75,76,77
+# 19,20,26,40,41,47,49,50
+# 19,20
+
+
+
 sbSNoAgr1 <-
 "
 Jordbruksbedrifter (gardsbruk) og personlege brukarar (gardbrukarar)
@@ -85,7 +91,73 @@ agrTabs4 <-c("05979","11583","06459")
 agrTabs5 <-c("12661","12662","12663")
 
 
+#https://statistik.sjv.se/PXWeb/api/v1/sv/Jordbruksverkets statistikdatabas/Skordar/JO0601J01.px
 
+j0601query0 <-
+'{
+  "query": [
+    {
+      "code": "Län",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "26"
+        ]
+      }
+    },
+    {
+      "code": "Variabel",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "2",
+          "3"
+        ]
+      }
+    },
+    {
+      "code": "Tabelluppgift",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "0"
+        ]
+      }
+    },
+    {
+      "code": "År",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "35",
+          "36",
+          "37",
+          "38",
+          "39",
+          "40",
+          "41",
+          "42",
+          "43",
+          "44",
+          "45",
+          "46",
+          "47",
+          "48",
+          "49",
+          "50",
+          "51",
+          "52",
+          "53",
+          "54",
+          "55"
+        ]
+      }
+    }
+  ],
+  "response": {
+    "format": "json-stat"
+  }
+}'
 
 
 query2DF <- function(jsQuery){
@@ -181,8 +253,9 @@ tstTabs4 <- c("03014","08307","08313","12824") # Electricity data etc
 
 readAndSaveMeta <- function(tblList) {
     for (tblNum in tblList) {
-        mDf <- getRMetaDataFrame(tblNum) ;
-        save(mDf,file=paste('Rd_meta/md_',tblNum,'.Rdata',sep=''))
+        print(tblNum)
+        X <- getRMetaDataFrame(tblNum) ;
+        saveRDS(X,file=paste('Rd_meta/md_',tblNum,'.Rds',sep=''))
     }
 }
 
@@ -308,9 +381,10 @@ fetchAndSaveMeta <- function(tblList,prfx='sbSNo') {
 
     getMDfName <- function(tblNum) {paste0('M_',prfx,tblNum)}
     for (tblNum in tblList) {
+        print(tblNum)
         mDf <-  getMDfName(tblNum) ;
-        assign(mDf,getRMetaDataFrame(tblNum)) ;
-        save(list= mDf,file=paste('Rd_meta/',mDf,'.Rdata',sep=''))
+        X <- getRMetaDataFrame(tblNum) ;
+        saveRDS(X,file=paste('Rd_meta/',mDf,'.Rds',sep=''))
     }
     
     
@@ -371,9 +445,6 @@ loadAndWriteTable <- function(tblId,prfx='sbSNo',con){
 fetchAndSaveTableList <- function(tblList,prfx='sbSNo') {
    
     for (tblNum in tblList) {
-
-        
-        
        fetchAndSaveTable(tblNum,prfx=prfx)
     }
     
@@ -389,10 +460,11 @@ loadTableList <- function(tblList,prfx='sbSNo') {
 
 fetchAndSaveAgrMeta <- function(prfx='sbSNo') {
 
-   # agrTabLists <- c("agrTabs1","agrTabs2","agrTabs3","agrTabs4","agrTabs5")
+    # agrTabLists <- c("agrTabs1","agrTabs2","agrTabs3","agrTabs4","agrTabs5")
+    # Concatenate lists into one
     agrTabList <- c(agrTabs1,agrTabs2,agrTabs3,agrTabs4,agrTabs5)
     fetchAndSaveMeta(agrTabList,prfx=prfx)
-   
+    
      
 }
 
